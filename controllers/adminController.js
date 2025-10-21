@@ -34,4 +34,57 @@ export const getAllUsers = async (req, res) => {
   }
 };
 
+export const updateUserDetails = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { role, department } = req.body;
 
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+
+    if (user.role === 2) {
+      return res
+        .status(403)
+        .json({ success: false, message: "Cannot modify another admin" });
+    }
+
+    if (department) {
+      const depExists = await Department.findById(department);
+      if (!depExists) {
+        return res.status(400).json({ success: false, message: "Invalid department ID" });
+      }
+      user.department = department;
+    }
+
+    
+    if (role !== undefined) {
+      if (![0, 1, 2].includes(role)) {
+        return res
+          .status(400)
+          .json({ success: false, message: "Invalid role value (0, 1, or 2)" });
+      }
+      user.role = role;
+    }
+
+    await user.save();
+
+    const updatedUser = await User.findById(user._id)
+      .populate("department", "name description")
+      .select("-password");
+
+    res.status(200).json({
+      success: true,
+      message: "User details updated successfully",
+      user: updatedUser,
+    });
+  } catch (error) {
+    console.error("Error updating user:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error while updating user",
+    });
+  }
+};
