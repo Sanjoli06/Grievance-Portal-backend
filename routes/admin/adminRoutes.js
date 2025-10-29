@@ -4,7 +4,7 @@ import { deleteUser, getAllUsers, updateUserDetails } from "../../controllers/ad
 
 const router = express.Router();
 
-router.get("/users", protect, adminOnly, getAllUsers);
+router.get("/users", protect,adminOnly, getAllUsers);
 router.put("/users/:id", protect, adminOnly, updateUserDetails);
 router.delete("/users/:id", protect, adminOnly, deleteUser);
 
