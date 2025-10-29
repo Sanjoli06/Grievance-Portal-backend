@@ -52,11 +52,11 @@ export const updateUserDetails = async (req, res) => {
     }
 
     if (department) {
-      const depExists = await Department.findById(department);
+      const depExists = await Department.findOne({name:department});
       if (!depExists) {
         return res.status(400).json({ success: false, message: "Invalid department ID" });
       }
-      user.department = department;
+      user.department = depExists._id;
     }
 
     
@@ -116,3 +116,26 @@ export const deleteUser = async (req, res) => {
   }
 };
 
+export const createDepartment = async (req, res) => {
+  try {
+    const { name, description } = req.body;
+    const existing = await Department.findOne({ name });
+    if (existing) return res.status(400).json({ success: false, message: "Department already exists" });
+
+    const department = new Department({ name, description });
+    await department.save();
+
+    res.status(201).json({ success: true, department });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Server error while creating department" });
+  }
+};
+
+export const getAllDepartments = async (req, res) => {
+  try {
+    const departments = await Department.find();
+    res.status(200).json({ success: true, departments });
+  } catch {
+    res.status(500).json({ success: false, message: "Failed to fetch departments" });
+  }
+};
