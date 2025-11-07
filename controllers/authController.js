@@ -8,10 +8,6 @@ import nodemailer from "nodemailer";
 
 dotenv.config();
 
-const generateToken = (id, role) => {
-  return jwt.sign({ id, role }, process.env.JWT_SECRET, { expiresIn: "7d" });
-};
-
 export const registerUser = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -62,7 +58,7 @@ export const loginUser = async (req, res) => {
     if (!isMatch)
       return res.status(400).json({ success: false, message: "Invalid email or password" });
 
-    const token = jwt.sign({ id:user._id, role:user._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
+    const token = jwt.sign({ id:user._id, role:user.role }, process.env.JWT_SECRET, { expiresIn: "7h" });
 
     res.status(200).json({
       success: true,
